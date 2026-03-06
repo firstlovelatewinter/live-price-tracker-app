@@ -83,7 +83,25 @@ def process_product_changes(products):
             else: p['price_change'] = 'new'
     return products
 
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__, static_folder='static')
+auth = HTTPBasicAuth()
+
+# --- User credentials, loaded from environment variables ---
+users = {
+    os.environ.get("HTTP_USERNAME"): generate_password_hash(os.environ.get("HTTP_PASSWORD"))
+}
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and \
+            check_password_hash(users.get(username), password):
+        return username
+
 @app.route('/')
+@auth.login_required
 def index():
     # Attempt to start a background check if needed and not already running
     price_checker.start()
@@ -111,11 +129,13 @@ def index():
                            now=datetime.now())
 
 @app.route('/status')
+@auth.login_required
 def get_status():
     """Endpoint for the frontend to poll for status updates."""
     return jsonify({"status": price_checker.status})
 
 @app.route('/add', methods=['POST'])
+@auth.login_required
 def add_product_route():
     url = request.form.get('url', '').strip()
     if not url: return "URL is required", 400
@@ -133,6 +153,7 @@ def add_product_route():
     return redirect('/?refresh=true')
 
 @app.route('/delete/<int:product_id>', methods=['POST'])
+@auth.login_required
 def delete_product_route(product_id):
     delete_product(product_id)
     return redirect('/')
