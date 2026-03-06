@@ -9,6 +9,7 @@ from database import get_all_products, get_price_history, add_product, delete_pr
 from scraper import check_price, async_check_prices_in_batch
 
 app = Flask(__name__, static_folder='static')
+init_db()  # Initialize the database
 app.secret_key = os.urandom(24)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
