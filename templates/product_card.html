@@ -1,0 +1,39 @@
+<div class="product-card">
+    {% if product.store %}
+    <div class="store-label store-label-{{ product.store|replace(' ', '-') }}">{{ product.store }}</div>
+    {% endif %}
+    <div class="product-image-wrapper">
+        <img src="{{ product.image_url or '' }}" alt="{{ product.name or 'Product' }}" class="product-image" onerror="this.style.visibility='hidden';">
+    </div>
+    <div class="product-content">
+        <div class="product-name">{{ product.name or 'Unknown Product' }}</div>
+        <div class="price-section">
+            {% if product.current_price %}
+                <span class="current-price">${{ "%.2f"|format(product.current_price) }}</span>
+                {% if product.is_on_sale and product.original_price %}
+                    <span class="original-price">${{ "%.2f"|format(product.original_price) }}</span>
+                    <span class="sale-badge">SALE</span>
+                {% endif %}
+                {% if product.price_change in ['up', 'down'] %}
+                <div class="price-change {{ product.price_change }}">
+                    {% if product.price_change == 'down' %}
+                        ↓ Dropped ${{ "%.2f"|format(product.price_diff) }}
+                    {% else %}
+                        ↑ Increased ${{ "%.2f"|format(product.price_diff) }}
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <span style="color: #999;">Price not available</span>
+            {% endif %}
+        </div>
+        <div class="product-meta">
+            <span>Last checked: {{ product.last_checked or 'Never' }}</span><br>
+            <a href="{{ product.url }}" target="_blank">View on site ↗</a>
+        </div>
+        <div class="product-actions">
+            <form method="POST" action="/check/{{ product.id }}"><button type="submit" class="small secondary">Check Now</button></form>
+            <form method="POST" action="/delete/{{ product.id }}" onsubmit="return confirm('Stop tracking this product?')"><button type="submit" class="small danger">Delete</button></form>
+        </div>
+    </div>
+</div>

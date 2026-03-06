@@ -1,0 +1,21 @@
+# Virtual Environment
+venv/
+/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS-specific files
+.DS_Store
+
+# Log files
+*.log
+*.pid
+*.err
+
+# Database file
+prices.db
+
+# Environment variables
+.env
